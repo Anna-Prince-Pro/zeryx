@@ -5,6 +5,7 @@ from pathlib import Path
 import math
 import random
 import time
+import tkinter as tk
 
 from gesture_engine import CircleGeometry, CircleGestureEngine
 from invisible_sensor import InvisibleHandSensor

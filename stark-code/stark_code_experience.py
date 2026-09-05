@@ -8,6 +8,7 @@ import tkinter as tk
 from experience_state import ExperienceFlow, ExperienceStage
 from sanctum_live import LiveSanctumApp
 from sanctum_ui import GOLD, LIGHT_GOLD, AMBER, ORANGE, BURNT_ORANGE, DARK_BROWN, MUTED, BG_COLOR
+from project_launcher import ProjectLauncher
 
 
 class StarkCodeExperience(LiveSanctumApp):
@@ -17,6 +18,7 @@ class StarkCodeExperience(LiveSanctumApp):
         self._experience_ready = False
         super().__init__()
         self.flow = ExperienceFlow()
+        self.launcher = ProjectLauncher()
         self._experience_ready = True
         
         self.env_particles = [(random.uniform(0, self.width), random.uniform(0, self.height), 
@@ -38,18 +40,30 @@ class StarkCodeExperience(LiveSanctumApp):
             return
 
         stage = self.flow.stage
-        if stage is ExperienceStage.MAIN_ENVIRONMENT:
-            self._draw_main_environment(now)
-            return
-
-        super()._draw_spell(now)
         
+        if stage not in (ExperienceStage.WORKSPACE_ACTIVE, ExperienceStage.ERROR_PROJECT, ExperienceStage.ERROR_VSCODE):
+            super()._draw_spell(now)
+
         if stage is ExperienceStage.BOOT:
             self._draw_boot_overlay(now)
         elif stage is ExperienceStage.SPELL_VERIFIED:
             self._draw_verification(now)
-        elif stage is ExperienceStage.PORTAL_OPENING:
+        elif stage is ExperienceStage.GATEWAY_OPENING:
             self._draw_portal_transition(now)
+        elif stage is ExperienceStage.SANCTUM_INITIALIZING:
+            self._draw_sanctum_initializing(now)
+        elif stage is ExperienceStage.PROJECT_INITIALIZING:
+            self._draw_project_initializing(now)
+            self._check_project_creation(now)
+        elif stage is ExperienceStage.LAUNCHING_VSCODE:
+            self._draw_launching_vscode(now)
+            self._check_vscode_launch(now)
+        elif stage is ExperienceStage.WORKSPACE_ACTIVE:
+            self._draw_main_environment(now)
+        elif stage is ExperienceStage.ERROR_PROJECT:
+            self._draw_error_overlay("PROJECT CREATION FAILED")
+        elif stage is ExperienceStage.ERROR_VSCODE:
+            self._draw_error_overlay("DEVELOPER ENVIRONMENT UNAVAILABLE")
 
     def _draw_boot_overlay(self, now: float) -> None:
         progress = self.flow.progress(now, 0.75)
@@ -61,14 +75,12 @@ class StarkCodeExperience(LiveSanctumApp):
             self.canvas.create_arc(cx - r, cy - r, cx + r, cy + r, start=now * 120 + i*90,
                                    extent=120, style="arc", outline=BURNT_ORANGE, width=2)
                                    
-        self.canvas.create_text(cx, cy - 20, text="SANCTUM GATEWAY", fill=LIGHT_GOLD,
-                                font=("Segoe UI", 24, "bold"))
-        self.canvas.create_text(cx, cy + 20, text="INITIALIZING...", fill=AMBER,
-                                font=("Consolas", 12, "bold"))
+        self.canvas.create_text(cx, cy - 20, text="SANCTUM GATEWAY", fill=LIGHT_GOLD, font=("Segoe UI", 24, "bold"))
+        self.canvas.create_text(cx, cy + 20, text="INITIALIZING...", fill=AMBER, font=("Consolas", 12, "bold"))
         self.canvas.create_line(cx - 150, cy + 45, cx - 150 + 300 * progress, cy + 45, fill=GOLD, width=3)
 
     def _draw_verification(self, now: float) -> None:
-        progress = self.flow.progress(now, 0.62)
+        progress = self.flow.progress(now, 1.0)
         cx, cy = self.spell_center
         
         for i in range(5):
@@ -80,17 +92,12 @@ class StarkCodeExperience(LiveSanctumApp):
         core_r = 10 + progress * 60
         self.canvas.create_oval(cx - core_r, cy - core_r, cx + core_r, cy + core_r, fill="", outline="#ffffff", width=2)
         
-        self.canvas.create_text(cx, cy - core_r - 40, text="SPELL VERIFIED", fill="#ffffff",
-                                font=("Segoe UI", 32, "bold"))
-        self.canvas.create_text(cx, cy + core_r + 40, text="SANCTUM CORE LINKED", fill=GOLD,
-                                font=("Consolas", 14, "bold"))
+        self.canvas.create_text(cx, cy - core_r - 40, text="SPELL VERIFIED", fill="#ffffff", font=("Segoe UI", 32, "bold"))
 
     def _draw_portal_transition(self, now: float) -> None:
         progress = self.flow.progress(now, 1.25)
         cx, cy = self.spell_center
-        
         max_dim = max(self.width, self.height)
-        
         portal_r = progress * progress * max_dim * 1.5
         
         burst_count = 36
@@ -122,9 +129,49 @@ class StarkCodeExperience(LiveSanctumApp):
             
         self.canvas.create_text(cx, cy, text="GATEWAY OPEN", fill="#fff8e1", font=("Segoe UI", 40, "bold"))
 
+    def _draw_sanctum_initializing(self, now: float) -> None:
+        cx, cy = self.spell_center
+        self.canvas.create_text(cx, cy, text="SANCTUM INITIALIZING", fill=LIGHT_GOLD, font=("Segoe UI", 36, "bold"))
+        
+    def _draw_project_initializing(self, now: float) -> None:
+        cx, cy = self.spell_center
+        self.canvas.create_text(cx, cy - 60, text="SANCTUM CORE ........ ONLINE", fill=AMBER, font=("Consolas", 14))
+        self.canvas.create_text(cx, cy - 30, text="PROJECT FORGE ....... INITIALIZING", fill=AMBER, font=("Consolas", 14))
+        self.canvas.create_text(cx, cy, text="DEVELOPER LINK ...... ESTABLISHED", fill=AMBER, font=("Consolas", 14))
+        
+        if self.launcher.status == "CREATED":
+            self.canvas.create_text(cx, cy + 60, text="PROJECT READY", fill=GOLD, font=("Segoe UI", 24, "bold"))
+            
+    def _check_project_creation(self, now: float) -> None:
+        if self.launcher.status == "IDLE":
+            self.launcher.create_project_async()
+        elif self.launcher.status == "CREATED":
+            if now - self.flow.stage_started > 1.5:
+                self.flow.trigger_next(ExperienceStage.LAUNCHING_VSCODE, now)
+        elif self.launcher.status == "ERROR_PROJECT":
+            self.flow.trigger_next(ExperienceStage.ERROR_PROJECT, now)
+
+    def _draw_launching_vscode(self, now: float) -> None:
+        cx, cy = self.spell_center
+        self.canvas.create_text(cx, cy, text="LAUNCHING WORKSPACE", fill=LIGHT_GOLD, font=("Segoe UI", 32, "bold"))
+        self.canvas.create_text(cx, cy + 40, text="CONNECTING TO VS CODE...", fill=MUTED, font=("Consolas", 14))
+        
+    def _check_vscode_launch(self, now: float) -> None:
+        if self.launcher.status == "CREATED":
+            self.launcher.launch_vscode_async()
+        elif self.launcher.status == "DONE":
+            self.flow.trigger_next(ExperienceStage.WORKSPACE_ACTIVE, now)
+        elif self.launcher.status == "ERROR_VSCODE":
+            self.flow.trigger_next(ExperienceStage.ERROR_VSCODE, now)
+
+    def _draw_error_overlay(self, message: str) -> None:
+        cx, cy = self.spell_center
+        self.canvas.create_rectangle(0, 0, self.width, self.height, fill="#120502", outline="")
+        self.canvas.create_text(cx, cy, text=message, fill="#ff3333", font=("Segoe UI", 36, "bold"))
+        self.canvas.create_text(cx, cy + 50, text="SYSTEM HALTED", fill=MUTED, font=("Consolas", 16))
+
     def _draw_main_environment(self, now: float) -> None:
         self.canvas.create_rectangle(0, 0, self.width, self.height, fill=BG_COLOR, outline="")
-        
         self._draw_ambient_environment(now)
         self._draw_main_holographic_core(now)
         self._draw_main_floating_telemetry(now)
@@ -142,13 +189,11 @@ class StarkCodeExperience(LiveSanctumApp):
     def _draw_main_holographic_core(self, now: float) -> None:
         cx, cy = self.width * 0.5, self.height * 0.5
         radius = min(self.width, self.height) * 0.28
-        
         pulse = math.sin(now * 1.5) * 10
         
         for i in range(3):
             r_x = radius * 1.4 + i * 30
             r_y = radius * 0.6 + i * 15
-            
             self.canvas.create_oval(cx - r_x, cy - r_y, cx + r_x, cy + r_y, outline=DARK_BROWN, width=2)
             
             node_angle = math.radians(now * (30 + i*10))
@@ -213,7 +258,7 @@ class StarkCodeExperience(LiveSanctumApp):
                 self.canvas.create_line(x + spacing - 20, bottom_y, x + spacing - 20, bottom_y + 30, fill=DARK_BROWN)
 
     def _draw_live_diagnostics(self, now: float) -> None:
-        if self._experience_ready and self.flow.stage is ExperienceStage.MAIN_ENVIRONMENT:
+        if self._experience_ready and self.flow.stage in (ExperienceStage.WORKSPACE_ACTIVE, ExperienceStage.ERROR_PROJECT, ExperienceStage.ERROR_VSCODE):
             return
         super()._draw_live_diagnostics(now)
 

@@ -9,8 +9,13 @@ class ExperienceStage(Enum):
     GATEWAY = auto()
     CASTING = auto()
     SPELL_VERIFIED = auto()
-    PORTAL_OPENING = auto()
-    MAIN_ENVIRONMENT = auto()
+    GATEWAY_OPENING = auto()
+    SANCTUM_INITIALIZING = auto()
+    PROJECT_INITIALIZING = auto()
+    LAUNCHING_VSCODE = auto()
+    WORKSPACE_ACTIVE = auto()
+    ERROR_PROJECT = auto()
+    ERROR_VSCODE = auto()
 
 
 class ExperienceFlow:
@@ -28,14 +33,20 @@ class ExperienceFlow:
             self._move_to(ExperienceStage.CASTING, now)
         elif self.stage is ExperienceStage.CASTING and not casting:
             self._move_to(ExperienceStage.GATEWAY, now)
-        elif self.stage is ExperienceStage.SPELL_VERIFIED and elapsed >= 0.62:
-            self._move_to(ExperienceStage.PORTAL_OPENING, now)
-        elif self.stage is ExperienceStage.PORTAL_OPENING and elapsed >= 1.25:
-            self._move_to(ExperienceStage.MAIN_ENVIRONMENT, now)
+        elif self.stage is ExperienceStage.SPELL_VERIFIED and elapsed >= 1.0:
+            self._move_to(ExperienceStage.GATEWAY_OPENING, now)
+        elif self.stage is ExperienceStage.GATEWAY_OPENING and elapsed >= 1.25:
+            self._move_to(ExperienceStage.SANCTUM_INITIALIZING, now)
+        elif self.stage is ExperienceStage.SANCTUM_INITIALIZING and elapsed >= 1.25:
+            self._move_to(ExperienceStage.PROJECT_INITIALIZING, now)
+        # Project initialization and VS code launching are advanced by the UI querying the worker.
 
     def verify_spell(self, now: float) -> None:
-        if self.stage is not ExperienceStage.MAIN_ENVIRONMENT:
+        if self.stage in (ExperienceStage.GATEWAY, ExperienceStage.CASTING):
             self._move_to(ExperienceStage.SPELL_VERIFIED, now)
+
+    def trigger_next(self, stage: ExperienceStage, now: float) -> None:
+        self._move_to(stage, now)
 
     def progress(self, now: float, duration: float) -> float:
         return max(0.0, min(1.0, (now - self.stage_started) / duration))

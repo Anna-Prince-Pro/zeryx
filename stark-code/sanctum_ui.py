@@ -65,7 +65,7 @@ class SanctumApp:
         self.width = self.root.winfo_screenwidth()
         self.height = self.root.winfo_screenheight()
         
-        self.start_time = time.perf_counter()
+        self.start_time = time.monotonic()
         self.last_time = self.start_time
         
         self.rotation_inner = 0.0
@@ -112,7 +112,7 @@ class SanctumApp:
         return min(self.width, self.height) * 0.35
 
     def _animate(self) -> None:
-        now = time.perf_counter()
+        now = time.monotonic()
         dt = min(now - self.last_time, 0.05)
         self.last_time = now
         
