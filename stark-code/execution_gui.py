@@ -116,6 +116,8 @@ class ExecutionResultGUI:
         self.stderr = stderr
         self.project_name = project_name
         self.on_close = on_close
+        self._thanos_started = False
+        self._snap_triggered = False
 
         self.root = tk.Tk()
         self.root.title("STARK // CODE — Execution Core")
@@ -131,9 +133,105 @@ class ExecutionResultGUI:
         self._particles.start()
         self._animate_scanline()
 
+        if self.success:
+            self.root.after(4000, self._start_thanos_sequence)
+
         self.root.bind("<Escape>", self._close)
         self.root.bind("<Return>", self._close)
         self.root.bind("<space>", self._close)
+
+    # ── Thanos Sequence ───────────────────────────────────────────────────────
+
+    def _start_thanos_sequence(self):
+        if getattr(self, "_thanos_started", False):
+            return
+        self._thanos_started = True
+        
+        # Full-screen black canvas to cover the previous UI
+        self._t_canvas = tk.Canvas(self.root, width=self.W, height=self.H, bg="#000000", highlightthickness=0)
+        self._t_canvas.place(x=0, y=0)
+        
+        self._t_step = 0
+        self._t_texts = [
+            ("SPIDER-MAN:\n\nNice. Your code runs.", 2000, ERROR_CLR),
+            ("SPIDER-MAN:\n\nYou could've literally opened\nVS Code and pressed Run.", 3500, ERROR_CLR),
+            ("SPIDER-MAN:\n\nBut nah.", 1500, ERROR_CLR),
+            ("SPIDER-MAN:\n\nYou needed Doctor Strange.", 2000, ERROR_CLR),
+            ("SPIDER-MAN:\n\nAnd Spider-Man.", 1500, ERROR_CLR),
+            ("SPIDER-MAN:\n\nAnd apparently...", 2000, ERROR_CLR),
+            ("SPIDER-MAN:\n\nThanos.", 1500, ERROR_CLR),
+            ("SHOW_STONES", 2500, ""),
+            ("SYSTEM:\n\nTHANOS SIGNATURE DETECTED", 2500, AMBER_BRIGHT),
+            ("SPIDER-MAN:\n\nBro, this is getting\nunnecessarily complicated.", 3000, ERROR_CLR),
+            ("SPIDER-MAN:\n\nAll this...\nFor a Python file.", 2500, ERROR_CLR),
+            ("THANOS:\n\nSNAP IMMINENT.", 2500, "#a040e0"),
+            ("SPIDER-MAN:\n\nHonestly? Fair.", 2000, ERROR_CLR),
+            ("SNAP", 1500, ""),
+            ("SYSTEM:\n\nSTARK // CODE TERMINATED", 3000, AMBER_BRIGHT),
+            ("SYSTEM:\n\nYou made your life harder\nfor absolutely no reason.", 5000, TEXT_PRIMARY),
+            ("END", 0, "")
+        ]
+        self._run_thanos_step()
+
+    def _run_thanos_step(self):
+        if self._t_step >= len(self._t_texts):
+            return
+            
+        cmd, delay, color = self._t_texts[self._t_step]
+        
+        if cmd == "SHOW_STONES":
+            self._draw_stones()
+            self.root.after(delay, self._next_t_step)
+        elif cmd == "SNAP":
+            self._do_snap_effect()
+            self.root.after(delay, self._next_t_step)
+        elif cmd == "END":
+            self._close()
+        else:
+            self._t_canvas.delete("diag")
+            self._t_canvas.create_text(
+                self.W // 2, self.H // 2,
+                text=cmd,
+                fill=color,
+                font=("Consolas", 26, "bold"),
+                justify="center",
+                tags="diag"
+            )
+            self.root.after(delay, self._next_t_step)
+            
+    def _next_t_step(self):
+        self._t_step += 1
+        self._run_thanos_step()
+        
+    def _draw_stones(self):
+        cx, cy = self.W // 2, self.H // 2 - 120
+        # draw a glowing center
+        self._t_canvas.create_oval(cx - 30, cy - 30, cx + 30, cy + 30, fill="#d4af37", outline="#ffdf00", width=4, tags="stones")
+        # 6 stones
+        colors = ["#4169E1", "#FFD700", "#DC143C", "#8A2BE2", "#228B22", "#FF8C00"]
+        names = ["SPACE", "MIND", "REALITY", "POWER", "TIME", "SOUL"]
+        for i in range(6):
+            angle = math.tau * i / 6 - math.pi/2
+            sx = cx + math.cos(angle) * 120
+            sy = cy + math.sin(angle) * 120
+            self._t_canvas.create_oval(sx - 15, sy - 15, sx + 15, sy + 15, fill=colors[i], outline="#ffffff", width=2, tags="stones")
+            self._t_canvas.create_text(sx, sy + 30, text=names[i], fill=colors[i], font=("Consolas", 12, "bold"), tags="stones")
+
+    def _do_snap_effect(self):
+        if getattr(self, "_snap_triggered", False):
+            return
+        self._snap_triggered = True
+        
+        self._t_canvas.delete("all")
+        
+        def _flash(count=0):
+            if count < 8:
+                bg = "#ffffff" if count % 2 == 0 else "#000000"
+                self._t_canvas.config(bg=bg)
+                self.root.after(60, lambda: _flash(count + 1))
+            else:
+                self._t_canvas.config(bg="#000000")
+        _flash()
 
     # ── UI Construction ───────────────────────────────────────────────────────
 

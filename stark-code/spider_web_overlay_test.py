@@ -204,7 +204,7 @@ class SpiderWebTestApp:
         self.root.destroy()
         
     def trigger_web(self, origin, dir_x, dir_y):
-        if self.state in ("IDLE", "FADING"):
+        if self.state == "IDLE":
             self._execution_triggered = False
             self.state = "SHOOTING"
             self.state_start = time.perf_counter()
@@ -310,7 +310,7 @@ class SpiderWebTestApp:
             alpha = max(0.0, 1.0 - (fade_elapsed / 1.2)) if is_fading else 1.0
             
             if alpha <= 0:
-                self.state = "IDLE"
+                self.state = "EXECUTING"
                 if not self._execution_triggered:
                     self._execution_triggered = True
                     threading.Thread(target=self._run_project, daemon=True).start()
@@ -377,6 +377,9 @@ class SpiderWebTestApp:
             gui.run()
         except Exception as e:
             print(f"[execution_gui] Failed to open result GUI: {e}")
+        finally:
+            self._close()
+
         
     def _draw_web(self, elapsed, alpha):
         cx, cy = self.target
@@ -423,6 +426,24 @@ class SpiderWebTestApp:
 
 if __name__ == "__main__":
     import argparse
+    import os
+    import signal
+    
+    # Enforce a strict single-instance lifecycle per STARK//CODE session.
+    # Clean up any orphaned background overlay process from a previous aborted run.
+    pid_file = Path(__file__).resolve().parent / "overlay_pid.txt"
+    if pid_file.exists():
+        try:
+            old_pid = int(pid_file.read_text().strip())
+            os.kill(old_pid, signal.SIGTERM)
+        except Exception:
+            pass
+            
+    try:
+        pid_file.write_text(str(os.getpid()))
+    except Exception:
+        pass
+
     parser = argparse.ArgumentParser(description="Spider-Man web overlay")
     parser.add_argument("--project-dir", type=str, default=None,
                         help="Path to the STARK project folder whose main.py will be executed")
