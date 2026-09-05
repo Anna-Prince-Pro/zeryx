@@ -20,6 +20,7 @@ class StarkCodeExperience(LiveSanctumApp):
         self.flow = ExperienceFlow()
         self.launcher = ProjectLauncher()
         self._experience_ready = True
+        self._workspace_entered = False
         
         self.env_particles = [(random.uniform(0, self.width), random.uniform(0, self.height), 
                                random.uniform(0.1, 0.5), random.choice((GOLD, ORANGE, BURNT_ORANGE))) 
@@ -171,11 +172,12 @@ class StarkCodeExperience(LiveSanctumApp):
         self.canvas.create_text(cx, cy + 50, text="SYSTEM HALTED", fill=MUTED, font=("Consolas", 16))
 
     def _draw_main_environment(self, now: float) -> None:
-        self.canvas.create_rectangle(0, 0, self.width, self.height, fill=BG_COLOR, outline="")
-        self._draw_ambient_environment(now)
-        self._draw_main_holographic_core(now)
-        self._draw_main_floating_telemetry(now)
-        
+        # The launcher has already started VS Code + the detached Spider-Man overlay.
+        # Destroy this window once so the overlay has an unobstructed transparent surface.
+        if not self._workspace_entered:
+            self._workspace_entered = True
+            self.root.after(300, self._close)
+
     def _draw_ambient_environment(self, now: float) -> None:
         for i, (x, y, speed, color) in enumerate(self.env_particles):
             nx = (x + math.sin(now * speed) * 0.5) % self.width
