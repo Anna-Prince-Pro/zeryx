@@ -37,7 +37,7 @@ print("SANCTUM CORE ONLINE")
 print("AVENGERS, ASSEMBLE.")
 print()
 
-developer = input("Developer identity: ")
+developer = "STARK DEVELOPER"
 
 print()
 print(f"Welcome, {developer}.")
@@ -75,24 +75,25 @@ AVENGERS, ASSEMBLE.
                 self.status = "ERROR_VSCODE"
                 return
 
-            # Launch VS Code maximized via PowerShell start command
+            # Launch VS Code maximized via PowerShell start command without visible console
             subprocess.Popen(
                 ["powershell", "-WindowStyle", "Hidden", "-Command",
                  f'Start-Process code -ArgumentList "--new-window","--max-restore","{self.project_dir}"'],
-                shell=False
+                shell=False,
+                creationflags=subprocess.CREATE_NO_WINDOW
             )
 
             # Wait for VS Code to be visible before launching the overlay
             time.sleep(2.5)
 
             # Launch the Spider-Man overlay as a fully independent detached process
-            # so it survives the STARK//CODE window closing
+            # so it survives the STARK//CODE window closing, hiding the console window
             overlay_script = Path(__file__).resolve().parent / "spider_web_overlay_test.py"
             subprocess.Popen(
                 [sys.executable, str(overlay_script),
                  "--project-dir", str(self.project_dir)],
                 cwd=str(Path(__file__).resolve().parent),
-                creationflags=DETACHED,
+                creationflags=DETACHED | subprocess.CREATE_NO_WINDOW,
                 close_fds=True,
             )
             print(f"[STARK] Spider-Man overlay launched as detached process.")

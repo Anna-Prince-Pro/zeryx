@@ -345,6 +345,7 @@ class SpiderWebTestApp:
                 capture_output=True,
                 text=True,
                 timeout=30,
+                creationflags=subprocess.CREATE_NO_WINDOW,
             )
             self._show_execution_result(
                 result.returncode == 0,
@@ -358,19 +359,24 @@ class SpiderWebTestApp:
             self._show_execution_result(False, "", f"Failed to execute main.py:\n{e}", self.project_dir.name)
 
     def _show_execution_result(self, success, stdout, stderr, project_name):
-        """Must be called from the background thread — schedules GUI on main thread."""
+        """Schedule the execution GUI on the Tkinter main thread."""
+        # Tkinter requires all GUI creation to happen on the main thread.
+        # self.root.after() safely passes arguments from this background thread.
+        self.root.after(0, self._open_execution_gui, success, stdout, stderr, project_name)
+
+    def _open_execution_gui(self, success, stdout, stderr, project_name):
+        """Called on the main Tkinter thread via root.after()."""
         try:
-            from execution_gui import show_result
-            # show_result with block=False runs in its own thread, safe to call here
-            show_result(
+            from execution_gui import ExecutionResultGUI
+            gui = ExecutionResultGUI(
                 success=success,
                 stdout=stdout,
                 stderr=stderr,
                 project_name=project_name,
-                block=False,
             )
+            gui.run()
         except Exception as e:
-            print(f"[execution_gui] Failed to show result: {e}")
+            print(f"[execution_gui] Failed to open result GUI: {e}")
         
     def _draw_web(self, elapsed, alpha):
         cx, cy = self.target
