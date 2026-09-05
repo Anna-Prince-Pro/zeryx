@@ -1,1 +1,895 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>STARK//CODE — An Unnecessarily Powerful Developer Environment</title>
+
+    <meta
+        name="description"
+        content="STARK//CODE is an absurdly over-engineered superhero developer environment built for absolutely no reason."
+    >
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background:
+                radial-gradient(circle at 50% 20%, rgba(166, 92, 22, 0.12), transparent 30%),
+                radial-gradient(circle at 20% 80%, rgba(108, 52, 10, 0.10), transparent 30%),
+                #050504;
+            color: #f4ead8;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            mask-image: linear-gradient(to bottom, black, transparent 90%);
+        }
+
+        :root {
+            --gold: #f3bd5b;
+            --amber: #ff9f1c;
+            --orange: #e87519;
+            --cream: #f7ecd8;
+            --muted: #9c907e;
+            --panel: rgba(19, 14, 9, 0.82);
+            --border: rgba(243, 189, 91, 0.18);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .container {
+            width: min(1120px, calc(100% - 40px));
+            margin: auto;
+        }
+
+        /* ---------- NAV ---------- */
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 50;
+            backdrop-filter: blur(16px);
+            background: rgba(5, 5, 4, 0.72);
+            border-bottom: 1px solid rgba(243, 189, 91, 0.1);
+        }
+
+        .nav-inner {
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-weight: 900;
+            letter-spacing: 0.14em;
+            font-size: 15px;
+            color: var(--gold);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .nav-links a {
+            transition: 0.25s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--gold);
+        }
+
+        /* ---------- HERO ---------- */
+
+        .hero {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            position: relative;
+            padding: 120px 0 80px;
+            overflow: hidden;
+        }
+
+        .hero-glow {
+            position: absolute;
+            width: 620px;
+            height: 620px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 159, 28, 0.13), transparent 65%);
+            filter: blur(10px);
+            animation: pulse 5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(0.95);
+                opacity: 0.7;
+            }
+            50% {
+                transform: scale(1.08);
+                opacity: 1;
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 920px;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            margin-bottom: 24px;
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            color: var(--gold);
+            background: rgba(243, 189, 91, 0.05);
+            font-size: 12px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            font-size: clamp(58px, 11vw, 140px);
+            line-height: 0.9;
+            letter-spacing: -0.07em;
+            font-weight: 1000;
+            color: var(--cream);
+            text-shadow:
+                0 0 20px rgba(243, 189, 91, 0.08),
+                0 0 60px rgba(255, 159, 28, 0.06);
+        }
+
+        .hero h1 span {
+            color: var(--gold);
+        }
+
+        .hero-subtitle {
+            max-width: 700px;
+            margin: 30px auto 0;
+            font-size: clamp(17px, 2vw, 22px);
+            color: #c8bcaa;
+        }
+
+        .hero-subtitle strong {
+            color: var(--cream);
+        }
+
+        .hero-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 36px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 150px;
+            padding: 13px 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gold), var(--orange));
+            color: #170e05;
+            box-shadow: 0 10px 30px rgba(232, 117, 25, 0.2);
+        }
+
+        .btn-secondary {
+            border: 1px solid rgba(243, 189, 91, 0.25);
+            color: var(--cream);
+            background: rgba(255,255,255,0.02);
+        }
+
+        /* ---------- SECTIONS ---------- */
+
+        section {
+            padding: 110px 0;
+            position: relative;
+        }
+
+        .section-label {
+            font-size: 11px;
+            color: var(--amber);
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: clamp(32px, 6vw, 60px);
+            line-height: 1;
+            letter-spacing: -0.04em;
+            margin-bottom: 18px;
+        }
+
+        .section-description {
+            color: var(--muted);
+            max-width: 700px;
+        }
+
+        /* ---------- PROBLEM ---------- */
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 50px;
+        }
+
+        .glass-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: inset 0 0 50px rgba(255, 159, 28, 0.02);
+        }
+
+        .glass-card h3 {
+            margin-bottom: 12px;
+            font-size: 22px;
+            color: var(--cream);
+        }
+
+        .glass-card p {
+            color: var(--muted);
+        }
+
+        .quote {
+            color: var(--gold);
+            font-size: 24px;
+            line-height: 1.3;
+        }
+
+        /* ---------- FLOW ---------- */
+
+        .flow {
+            margin-top: 50px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .flow-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .flow-card::after {
+            content: "";
+            position: absolute;
+            inset: auto -20px -40px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(243,189,91,0.14), transparent 70%);
+        }
+
+        .flow-number {
+            font-size: 12px;
+            color: var(--amber);
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        .flow-icon {
+            font-size: 44px;
+            margin-bottom: 12px;
+        }
+
+        .flow-card h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .flow-card p {
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        /* ---------- TECH ---------- */
+
+        .tech-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 36px;
+        }
+
+        .tech-pill {
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.02);
+            color: #d8ccb8;
+            font-size: 13px;
+        }
+
+        /* ---------- FEATURE LIST ---------- */
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+            margin-top: 40px;
+        }
+
+        .feature {
+            padding: 24px;
+            border-left: 2px solid rgba(243,189,91,0.4);
+            background: linear-gradient(
+                90deg,
+                rgba(243,189,91,0.05),
+                transparent
+            );
+        }
+
+        .feature h4 {
+            margin-bottom: 7px;
+            color: var(--cream);
+            font-size: 18px;
+        }
+
+        .feature p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        /* ---------- DEMO ---------- */
+
+        .demo-box {
+            margin-top: 44px;
+            min-height: 420px;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            background:
+                radial-gradient(circle at center, rgba(243,189,91,0.08), transparent 45%),
+                #090806;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .demo-ring {
+            position: absolute;
+            width: 260px;
+            height: 260px;
+            border: 1px solid rgba(243,189,91,0.18);
+            border-radius: 50%;
+            animation: spin 16s linear infinite;
+        }
+
+        .demo-ring::before,
+        .demo-ring::after {
+            content: "";
+            position: absolute;
+            inset: 18px;
+            border: 1px dashed rgba(243,189,91,0.1);
+            border-radius: 50%;
+        }
+
+        .demo-ring::after {
+            inset: 52px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .demo-content {
+            position: relative;
+            z-index: 2;
+            max-width: 650px;
+        }
+
+        .demo-content h3 {
+            font-size: clamp(30px, 5vw, 54px);
+            margin-bottom: 12px;
+        }
+
+        .demo-content p {
+            color: var(--muted);
+            margin-bottom: 26px;
+        }
+
+        /* ---------- TEAM ---------- */
+
+        .team {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-top: 40px;
+        }
+
+        .member {
+            text-align: center;
+            padding: 28px 20px;
+        }
+
+        .avatar {
+            width: 74px;
+            height: 74px;
+            margin: 0 auto 16px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background:
+                linear-gradient(135deg, rgba(243,189,91,0.28), rgba(232,117,25,0.1));
+            border: 1px solid rgba(243,189,91,0.24);
+            color: var(--gold);
+            font-weight: 900;
+            font-size: 22px;
+        }
+
+        .member h4 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .member p {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        /* ---------- FOOTER ---------- */
+
+        footer {
+            padding: 70px 0 35px;
+            border-top: 1px solid rgba(243,189,91,0.09);
+        }
+
+        .footer-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 30px;
+        }
+
+        .footer-brand h2 {
+            font-size: 34px;
+            margin-bottom: 8px;
+        }
+
+        .footer-brand p {
+            color: var(--muted);
+            max-width: 500px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            color: #d4c8b5;
+            font-size: 13px;
+        }
+
+        .copyright {
+            margin-top: 50px;
+            color: #5f574d;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        /* ---------- REVEAL ---------- */
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(25px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ---------- RESPONSIVE ---------- */
+
+        @media (max-width: 800px) {
+            .nav-links {
+                display: none;
+            }
+
+            .problem-grid,
+            .flow,
+            .feature-grid,
+            .team {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-main {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            section {
+                padding: 80px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <div class="container nav-inner">
+            <a href="#" class="logo">STARK//CODE</a>
+
+            <div class="nav-links">
+                <a href="#why">WHY</a>
+                <a href="#flow">FLOW</a>
+                <a href="#tech">TECH</a>
+                <a href="#demo">DEMO</a>
+                <a href="#team">TEAM</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <header class="hero">
+        <div class="hero-glow"></div>
+
+        <div class="container hero-content">
+            <div class="eyebrow">A Completely Unnecessary Developer Environment</div>
+
+            <h1>STARK<span>//</span>CODE</h1>
+
+            <p class="hero-subtitle">
+                What if running a simple project in VS Code required
+                <strong>Doctor Strange, Spider-Man, and Thanos?</strong>
+            </p>
+
+            <div class="hero-buttons">
+                <a
+                    class="btn btn-primary"
+                    href="https://github.com/Anna-Prince-Pro/zeryx"
+                    target="_blank"
+                >
+                    VIEW ON GITHUB
+                </a>
+
+                <a class="btn btn-secondary" href="#demo">
+                    SEE THE CHAOS
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- WHY -->
+    <section id="why">
+        <div class="container reveal">
+
+            <div class="section-label">01 / THE PROBLEM</div>
+
+            <h2 class="section-title">
+                A problem<br>
+                that absolutely did not exist.
+            </h2>
+
+            <p class="section-description">
+                Opening a project in VS Code and pressing Run is already incredibly simple.
+                So naturally, we decided to make it dramatically more complicated.
+            </p>
+
+            <div class="problem-grid">
+
+                <div class="glass-card">
+                    <h3>THE NORMAL WAY</h3>
+
+                    <p class="quote">
+                        Open VS Code.<br>
+                        Open project.<br>
+                        Press Run.
+                    </p>
+                </div>
+
+                <div class="glass-card">
+                    <h3>THE STARK//CODE WAY</h3>
+
+                    <p class="quote">
+                        Summon a wizard.<br>
+                        Shoot a web.<br>
+                        Survive Thanos.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- FLOW -->
+    <section id="flow">
+        <div class="container reveal">
+
+            <div class="section-label">02 / THE ABSURD WORKFLOW</div>
+
+            <h2 class="section-title">
+                Because pressing Run<br>
+                was apparently too boring.
+            </h2>
+
+            <div class="flow">
+
+                <div class="glass-card flow-card">
+                    <div class="flow-number">01 / DOCTOR STRANGE</div>
+                    <div class="flow-icon">🌀</div>
+
+                    <h3>Open the Sanctum</h3>
+
+                    <p>
+                        Draw a circle in the air using your hand.
+                        The project is generated automatically and launched into VS Code.
+                    </p>
+                </div>
+
+                <div class="glass-card flow-card">
+                    <div class="flow-number">02 / SPIDER-MAN</div>
+                    <div class="flow-icon">🕷️</div>
+
+                    <h3>Shoot the Code</h3>
+
+                    <p>
+                        Make a Spider-Man-inspired web-shooter gesture.
+                        A web appears over your actual VS Code workspace and executes the project.
+                    </p>
+                </div>
+
+                <div class="glass-card flow-card">
+                    <div class="flow-number">03 / THANOS</div>
+                    <div class="flow-icon">🫰</div>
+
+                    <h3>Make Everything Worse</h3>
+
+                    <p>
+                        Once everything works perfectly, Thanos inevitably appears.
+                        Because apparently this needed an Avengers ending too.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- TECH -->
+    <section id="tech">
+        <div class="container reveal">
+
+            <div class="section-label">03 / UNDER THE HOOD</div>
+
+            <h2 class="section-title">Powered by code.<br>Fueled by chaos.</h2>
+
+            <p class="section-description">
+                STARK//CODE uses a normal software stack to create an intentionally
+                abnormal developer experience.
+            </p>
+
+            <div class="tech-grid">
+                <span class="tech-pill">Python</span>
+                <span class="tech-pill">OpenCV</span>
+                <span class="tech-pill">MediaPipe</span>
+                <span class="tech-pill">Tkinter</span>
+                <span class="tech-pill">Hand Tracking</span>
+                <span class="tech-pill">Gesture Recognition</span>
+                <span class="tech-pill">Subprocess Management</span>
+                <span class="tech-pill">Multithreading</span>
+                <span class="tech-pill">VS Code</span>
+                <span class="tech-pill">GitHub</span>
+            </div>
+
+            <div class="feature-grid">
+
+                <div class="feature">
+                    <h4>Invisible Computer Vision</h4>
+                    <p>
+                        The webcam works as an invisible interaction sensor instead
+                        of becoming another window staring back at you.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <h4>Gesture-Driven Workflow</h4>
+                    <p>
+                        Hands replace buttons for the core superhero actions.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <h4>Real VS Code Integration</h4>
+                    <p>
+                        The generated project opens inside the actual developer environment.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <h4>Cinematic Execution</h4>
+                    <p>
+                        Running code becomes a visual event instead of just another terminal command.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- DEMO -->
+    <section id="demo">
+        <div class="container reveal">
+
+            <div class="section-label">04 / DEMO</div>
+
+            <h2 class="section-title">Watch the totally unnecessary magic.</h2>
+
+            <div class="demo-box">
+
+                <div class="demo-ring"></div>
+
+                <div class="demo-content">
+
+                    <div class="eyebrow">
+                        STARK//CODE ONLINE
+                    </div>
+
+                    <h3>
+                        “You could have just pressed Run.”
+                    </h3>
+
+                    <p>
+                        But where's the fun in that?
+                    </p>
+
+                    <!-- Replace this link with your real demo video -->
+                    <a
+                        class="btn btn-primary"
+                        href="#"
+                        onclick="alert('Add your demo video link here!'); return false;"
+                    >
+                        WATCH DEMO
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- TEAM -->
+    <section id="team">
+        <div class="container reveal">
+
+            <div class="section-label">05 / THE PEOPLE WHO DID THIS</div>
+
+            <h2 class="section-title">
+                The developers<br>
+                behind the unnecessary complexity.
+            </h2>
+
+            <div class="team">
+
+                <div class="glass-card member">
+                    <div class="avatar">TL</div>
+                    <h4>Anna Maria Prince</h4>
+                    <p>Team Lead · Zeryx</p>
+                </div>
+
+                <div class="glass-card member">
+                    <div class="avatar">M2</div>
+                    <h4>Ann Merin Bince</h4>
+                    <p>Zeryx</p>
+                </div>
+
+               
+
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+
+            <div class="footer-main">
+
+                <div class="footer-brand">
+                    <h2>STARK//CODE</h2>
+
+                    <p>
+                        An unnecessarily complicated solution to a problem
+                        nobody asked us to solve.
+                    </p>
+                </div>
+
+                <div class="footer-links">
+
+                    <a
+                        href="https://github.com/Anna-Prince-Pro/zeryx"
+                        target="_blank"
+                    >
+                        GitHub
+                    </a>
+
+                    <a href="#demo">Demo</a>
+                </div>
+
+            </div>
+
+            <div class="copyright">
+                Built for a useless project hackathon. · AVENGERS, ASSEMBLE. 🫡
+            </div>
+
+        </div>
+    </footer>
+
+    <script>
+        const reveals = document.querySelectorAll(".reveal");
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("visible");
+                        observer.unobserve(entry.target);
+                    }
+                });
+            },
+            {
+                threshold: 0.12
+            }
+        );
+
+        reveals.forEach((el) => observer.observe(el));
+    </script>
+
+</body>
+</html>
