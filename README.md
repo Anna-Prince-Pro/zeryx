@@ -2,52 +2,85 @@
 
 
 
-# [Project Name] 🎯
+# STARK//CODE 🎯
 
 
 ## Basic Details
-### Team Name: [Name]
+### Team Name: Zeryx
 
 
 ### Team Members
-- Team Lead: [Name] - [College]
-- Member 2: [Name] - [College]
-- Member 3: [Name] - [College]
+- Team Lead: Anna Maria Prince - SSET
+- Member 2: Ann Merin Bince- SSET
+
 
 ### Project Description
-[2-3 lines about what your project does]
+STARK//CODE is a superhero-inspired developer environment that replaces ordinary programming actions with gesture-controlled cinematic experiences.
 
+A simple project can be created using a Doctor Strange-style circle gesture, opened in VS Code, and executed using a Spider-Man-inspired web-shooter gesture — because apparently pressing "Run" was too boring.
 ### The Problem (that doesn't exist)
-[What ridiculous problem are you solving?]
+Running a project in VS Code is already ridiculously easy.
+
+So naturally, we decided that developers needed to make it much harder by involving superheroes, invisible hand tracking, magical portals, web shooters, and eventually Thanos.
 
 ### The Solution (that nobody asked for)
-[How are you solving it? Keep it fun!]
+STARK//CODE turns a completely unnecessary task into a completely unnecessary superhero workflow.
+
+- 🌀 Doctor Strange gesture → creates a new project
+- ⚡ Sanctum sequence → prepares the developer workspace
+- 🕷️ Spider-Man gesture → launches a web animation
+- 💻 Web completion → executes the project
+- 💥 Avengers-style ending → because apparently simply running code wasn't dramatic enough
+
+The entire experience uses the webcam as an invisible interaction sensor, so the user does not need to interact with traditional buttons during the main experience.
 
 ## Technical Details
 ### Technologies/Components Used
 For Software:
-- [Languages used]
-- [Frameworks used]
-- [Libraries used]
-- [Tools used]
+- Python
+- Tkinter
+- OpenCV
+- MediaPipe
+- Python subprocess management
+- Multithreading
+- Visual Studio Code
+- Git & GitHub
 
 For Hardware:
-- [List main components]
-- [List specifications]
-- [List tools required]
+- No additional hardware required
+- Standard laptop/PC webcam is used as the interaction sensor
 
 ### Implementation
 For Software:
-# Installation
-[commands]
+STARK//CODE is implemented as a collection of Python modules responsible for:
+
+1. Invisible webcam-based hand tracking
+2. Gesture recognition
+3. Doctor Strange-style circular gesture detection
+4. Automatic project generation
+5. VS Code workspace launching
+6. Spider-Man-style gesture detection
+7. Web animation rendered as an overlay
+8. Automatic execution of the generated Python project
+9. Cinematic execution result display
+10. Avengers-inspired final experience
+The webcam feed itself is not displayed to the user during the main experience. It acts as an invisible sensor for gesture input.
+
+# installation 
+Clone the repository:
+
+`bash
+git clone https://github.com/Anna-Prince-Pro/zeryx.git
+cd zeryx
 
 # Run
-[commands]
+python stark-code/stark_code_experience.py
 
 ### Project Documentation
 For Software:
 
 # Screenshots (Add at least 3)
+
 ![Screenshot1](Add screenshot 1 here with proper name)
 *Add caption explaining what this shows*
 
@@ -82,8 +115,8 @@ For Hardware:
 
 ### Project Demo
 # Video
-[Add your demo video link here]
-*Explain what the video demonstrates*
+https://drive.google.com/file/d/1cKB36sje7RsKvVRuNrTjkL9Nq-i8dsvZ/view?usp=sharing
+https://drive.google.com/file/d/1AGnLck11OAGJQKjXFaAs7DelbxPvZhXJ/view?usp=sharing
 
 # Additional Demos
 [Add any extra demo materials/links]
