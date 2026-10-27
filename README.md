@@ -118,13 +118,11 @@ For Hardware:
 https://drive.google.com/file/d/1cKB36sje7RsKvVRuNrTjkL9Nq-i8dsvZ/view?usp=sharing
 https://drive.google.com/file/d/1AGnLck11OAGJQKjXFaAs7DelbxPvZhXJ/view?usp=sharing
 
-# Additional Demos
-[Add any extra demo materials/links]
 
 ## Team Contributions
-- [Name 1]: [Specific contributions]
-- [Name 2]: [Specific contributions]
-- [Name 3]: [Specific contributions]
+- Anna Maria Prince: Team Lead
+- Ann Merin Bince: Team Member
+
 
 ---
 Made with ❤️ at TinkerHub Useless Projects 
